@@ -24,14 +24,49 @@
         let result = document.getElementById('example');
 
         function onClickStartGiro() {
-            if ('DeviceOrientationEvent' in window) {
-            window.addEventListener('deviceorientation', (event) => {
-                console.log('Giroscópio disponível:', event);
-                result.innerHTML = "Giroscópio disponível: " + event;
-            });
-            } else {
-                result.innerHTML = 'Giroscópio não disponível';
-            }
+            // if ('DeviceOrientationEvent' in window) {
+            // window.addEventListener('deviceorientation', (event) => {
+            //     console.log('Giroscópio disponível:', event);
+            //     result.innerHTML = "Giroscópio disponível: " + event;
+            // });
+            // } else {
+            //     result.innerHTML = 'Giroscópio não disponível';
+            // }
+            return new Promise((resolve, revoke) => {
+                // If request permission exists
+                if(window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
+                    // Request permission
+                    window.DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        // Log
+                        console.log('Permissão de orientação:', response);
+
+                        // If granted
+                        if (response == "granted") {
+                            // Resolve
+                            resolve();
+                        } else {
+                            // Revoke
+                            revoke();
+                        }
+                    })
+                    .catch(e => {
+                        // Log
+                        console.log('Erro na orientação: ', e)
+
+                        // Revoke
+                        revoke("This experience requires access to your device's motion.")
+                    })
+                } 
+                else {
+                    // Log
+                    console.log('Orientação não existe')
+
+                    // Resolve
+                    resolve();
+                }
+
+            })
         }
 
         // gyro.startTracking(function(o) {
